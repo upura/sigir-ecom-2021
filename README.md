@@ -1,0 +1,16 @@
+# SIGIR eCOM 2021 Data Challenge
+
+This repository contains code for [SIGIR eCOM 2021 Data Challenge](https://sigir-ecom.github.io/data-task.html).
+
+See also:
+
+- [official beselines repository](https://github.com/coveooss/SIGIR-ecom-data-challenge)
+- [first teammate repository](https://github.com/hakubishin3/sigir-ecom-2021)
+- [second teammate repository](https://github.com/koukyo1994/sigir2021)
+
+## Development
+
+```bash
+python3 -m venv env
+source env/bin/activate
+```
