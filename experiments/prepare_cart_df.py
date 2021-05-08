@@ -1,8 +1,8 @@
 import pandas as pd
 from tqdm import tqdm
 
-
 from datasets import pickle_load
+
 
 if __name__ == '__main__':
     train = pickle_load('../session_rec_sigir_data/prepared/train.pkl')
@@ -26,7 +26,7 @@ if __name__ == '__main__':
                 dfs.append(tmp_train.loc[:ac_idx_purchased_product_sku_hash + nb])
             except IndexError:
                 pass
-        pd.concat(dfs, axis=0).reset_index(drop=True).to_pickle(f'train_pos_nb{nb}.pkl')
+        pd.concat(dfs, axis=0).reset_index(drop=True).to_pickle(f'../session_rec_sigir_data/prepared/train_pos_nb{nb}.pkl')
 
     train_neg = train[train['session_id_hash'].isin(session_id_hash_neg)]
     train_neg_gpb = train_neg.groupby('session_id_hash')
@@ -41,4 +41,4 @@ if __name__ == '__main__':
                 dfs.append(tmp_train.loc[:ac_idx_purchased_product_sku_hash + nb])
             except IndexError:
                 pass
-        pd.concat(dfs, axis=0).reset_index(drop=True).to_pickle(f'train_neg_nb{nb}.pkl')
+        pd.concat(dfs, axis=0).reset_index(drop=True).to_pickle(f'../session_rec_sigir_data/prepared/train_neg_nb{nb}.pkl')
