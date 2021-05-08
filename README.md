@@ -14,3 +14,14 @@ See also:
 python3 -m venv env
 source env/bin/activate
 ```
+
+## Procedure
+
+```
+cd experiments
+python prepare_df.py
+python prepare_cart_df.py
+python prepare_cart_Xy.py
+sh runner.sh
+python weighted_averaging.py
+```
