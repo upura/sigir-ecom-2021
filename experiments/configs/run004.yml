@@ -1,0 +1,29 @@
+description: LightGBM
+exp_name: 'sigir2021'
+run_name: 'run000'
+fe_name: 'nb8'
+data:
+  sample_submission: '../session_rec_sigir_data/prepared/sample_submission_nb6.csv'
+cols_definition:
+  categorical_col: [
+  ]
+  target_col: 'label'
+model_name: 'ModelLGBM'
+params: {
+  'num_leaves': 16,
+  'max_depth': 3,
+  "feature_fraction": 0.8,
+  'subsample_freq': 1,
+  "bagging_fraction": 0.7,
+  'min_data_in_leaf': 10,
+  'objective': 'binary',
+  'learning_rate': 0.01,
+  "boosting": "gbdt",
+  "lambda_l1": 0.4,
+  "lambda_l2": 0.4,
+  "verbosity": -1,
+  "random_state": 42,
+  "num_boost_round": 50000,
+  "early_stopping_rounds": 100
+}
+evaluation_metric: 'auc'

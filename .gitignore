@@ -166,3 +166,5 @@ venv/
 *.json
 *.csv
 *.pkl
+mlruns
+*.model
