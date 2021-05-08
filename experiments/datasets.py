@@ -73,7 +73,7 @@ def _preprocessing_sku_to_content(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def load_test_data() -> pd.DataFrame:
-    with open('../session_rec_sigir_data/test/rec_test_phase_1.json', 'r') as f:
+    with open('../session_rec_sigir_data/test/intention_test_phase_1.json', 'r') as f:
         test = json.load(f)
     dataset = _convert_json_to_dataframe(test)
     return dataset
@@ -81,11 +81,15 @@ def load_test_data() -> pd.DataFrame:
 
 def _convert_json_to_dataframe(json_data: dict) -> pd.DataFrame:
     events = []
+    nb_after_adds = []
     for query_label in tqdm(json_data):
+        nb_after_add = query_label["nb_after_add"]
         query = query_label["query"]
         for event in query:
             events.append(event)
+            nb_after_adds.append(nb_after_add)
     res = pd.DataFrame(events)
+    res['nb_after_add'] = nb_after_adds
     res["server_timestamp"] = pd.to_datetime(
         res["server_timestamp_epoch_ms"], unit="ms",
     )
