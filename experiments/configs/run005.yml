@@ -1,6 +1,6 @@
 description: LightGBM
 exp_name: 'sigir2021'
-run_name: 'run000'
+run_name: 'run005'
 fe_name: 'nb10'
 data:
   sample_submission: '../session_rec_sigir_data/prepared/sample_submission_nb10.csv'
