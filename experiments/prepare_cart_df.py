@@ -22,8 +22,10 @@ if __name__ == '__main__':
             tmp_train = tmp_train.reset_index(drop=True)
             try:
                 purchased_product_sku_hash = tmp_train.query('product_action=="purchase"')['product_sku_hash'].values[0]
+                purchase_idx_purchased_product_sku_hash = tmp_train.query('product_action=="purchase"').index[0]
                 ac_idx_purchased_product_sku_hash = tmp_train.query(f'product_action=="add" and product_sku_hash=="{purchased_product_sku_hash }"').index[0]
-                dfs.append(tmp_train.loc[:ac_idx_purchased_product_sku_hash + nb])
+                if (purchase_idx_purchased_product_sku_hash > ac_idx_purchased_product_sku_hash + nb) and (ac_idx_purchased_product_sku_hash + nb < len(tmp_train)):
+                    dfs.append(tmp_train.loc[:ac_idx_purchased_product_sku_hash + nb])
             except IndexError:
                 pass
         pd.concat(dfs, axis=0).reset_index(drop=True).to_pickle(f'../session_rec_sigir_data/prepared/train_pos_nb{nb}.pkl')
@@ -38,7 +40,8 @@ if __name__ == '__main__':
             tmp_train = tmp_train.reset_index(drop=True)
             try:
                 ac_idx = tmp_train.query('product_action=="add"').index[-1]
-                dfs.append(tmp_train.loc[:ac_idx_purchased_product_sku_hash + nb])
+                if (ac_idx + nb < len(tmp_train)):
+                    dfs.append(tmp_train.loc[:ac_idx + nb])
             except IndexError:
                 pass
         pd.concat(dfs, axis=0).reset_index(drop=True).to_pickle(f'../session_rec_sigir_data/prepared/train_neg_nb{nb}.pkl')
