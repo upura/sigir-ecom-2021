@@ -90,8 +90,7 @@ if __name__ == '__main__':
     for idx, query_label in enumerate(original_test_data):
         query = query_label["query"]
         session_id_hash = query[0]["session_id_hash"]
-        # 要検証
-        original_test_data[idx]["label"] = int(1 - sid2label[session_id_hash])
+        original_test_data[idx]["label"] = sid2label[session_id_hash]
 
     outfile_path = Path('../output/submissions') / "submission.json"
     with open(outfile_path, 'w') as outfile:
