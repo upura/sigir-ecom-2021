@@ -102,8 +102,8 @@ if __name__ == '__main__':
         else:
             features = pd.DataFrame(features, columns=colnames)
         X_train = pd.concat([X_train, features], axis=1)
-        Data.dump(X_train.drop('label_max', axis=1), f'../session_rec_sigir_data/pickle/X_train_nb{nb}.pkl')
-        Data.dump(X_train['label_max'], f'../session_rec_sigir_data/pickle/y_train_nb{nb}.pkl')
+        Data.dump(X_train.drop('label_max', axis=1), f'../input/pickle/X_train_nb{nb}.pkl')
+        Data.dump(X_train['label_max'], f'../input/pickle/y_train_nb{nb}.pkl')
 
     df_test = pickle_load('../session_rec_sigir_data/prepared/test.pkl')
     X_test = df_test.groupby('session_id_hash').agg({
@@ -131,7 +131,7 @@ if __name__ == '__main__':
 
         Data.dump(
             X_test_nb.drop(['session_id_hash_', 'nb_after_add_max'], axis=1),
-            f'../session_rec_sigir_data/pickle/X_test_nb{nb}.pkl'
+            f'../input/pickle/X_test_nb{nb}.pkl'
         )
         sub = X_test_nb[['session_id_hash_']]
         sub['label'] = np.nan
