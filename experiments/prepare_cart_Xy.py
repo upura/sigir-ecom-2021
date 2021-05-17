@@ -2,6 +2,7 @@ import sys
 
 import numpy as np
 import pandas as pd
+from sklearn import preprocessing
 
 sys.path.append('../')
 from ayniy.utils import Data
@@ -71,7 +72,65 @@ def extract_product_action_count(df, nb):
     ]]
 
 
+def extract_timestamp(df):
+    _df = df.copy()
+    _df = _df.groupby('session_id_hash')['server_timestamp'].max().reset_index()
+    _df['server_timestamp_month'] = _df['server_timestamp'].dt.month
+    _df['server_timestamp_day'] = _df['server_timestamp'].dt.day
+    _df['server_timestamp_dow'] = _df['server_timestamp'].dt.weekday
+    _df['server_timestamp_hour'] = _df['server_timestamp'].dt.hour
+    return _df[[
+        'server_timestamp_month',
+        'server_timestamp_day',
+        'server_timestamp_dow',
+        'server_timestamp_hour'
+    ]]
+
+
+def extract_product(X_train, X_test_nb, nb):
+    sku_to_content = pd.read_pickle('../session_rec_sigir_data/prepared/sku_to_content.pkl')
+    _X_train = X_train.copy()
+    _X_test_nb = X_test_nb.copy()
+
+    _df = pd.concat([_X_train, X_test_nb], axis=0)
+    _df['product_sku_hash'] = _df['product_sku_hash_list'].map(lambda x: x[len(x) - nb - 1])
+    _df = pd.merge(_df['product_sku_hash'], sku_to_content, on='product_sku_hash', how='left')
+    for c in ['category_hash',
+                  'category_hash_first_level',
+                  'category_hash_second_level',
+                  'category_hash_third_level']:
+        le = preprocessing.LabelEncoder()
+        _df[c] = le.fit_transform(_df[c].fillna('unkown'))
+    _df = pd.concat([
+        _df[['category_hash',
+              'category_hash_first_level',
+              'category_hash_second_level',
+              'category_hash_third_level',
+              'price_bucket']],
+        pd.DataFrame(
+            _df['description_vector'].map(lambda x: x if isinstance(x, list) else [0 for _ in range(50)]).to_list(),
+            columns=[f'desc_{i}' for i in range(50)]
+        ),
+        pd.DataFrame(
+            _df['image_vector'].map(lambda x: x if isinstance(x, list) else [0 for _ in range(50)]).to_list(),
+            columns=[f'img_{i}' for i in range(50)]
+        )
+    ], axis=1)
+    return _df
+
+
 if __name__ == '__main__':
+
+    df_test = pickle_load('../session_rec_sigir_data/prepared/test.pkl')
+    X_test = df_test.groupby('session_id_hash').agg({
+        'is_search': ['sum'],
+        'server_timestamp_epoch_ms': ['count', np.ptp],
+        'nb_after_add': ['max'],
+        'product_sku_hash': list,
+        'product_action': list
+    }).reset_index()
+    X_test.columns = ["_".join(x) for x in X_test.columns.ravel()]
+
     for nb in [0, 2, 4, 6, 8, 10]:
         print('****** Starting nb==', nb)
         df_pos = pd.read_pickle(f'../session_rec_sigir_data/prepared/train_pos_nb{nb}.pkl')
@@ -89,25 +148,19 @@ if __name__ == '__main__':
         }).reset_index(drop=True)
         X_train.columns = ["_".join(x) for x in X_train.columns.ravel()]
         X_train = pd.concat([X_train, extract_product_action_count(X_train, nb)], axis=1)
-        X_train = X_train.drop(['product_sku_hash_list', 'product_action_list'], axis=1)
-        Data.dump(X_train.drop('label_max', axis=1), f'../input/pickle/X_train_nb{nb}.pkl')
-        Data.dump(X_train['label_max'], f'../input/pickle/y_train_nb{nb}.pkl')
+        X_train = pd.concat([X_train, extract_timestamp(df_train)], axis=1)
 
-    df_test = pickle_load('../session_rec_sigir_data/prepared/test.pkl')
-    X_test = df_test.groupby('session_id_hash').agg({
-        'is_search': ['sum'],
-        'server_timestamp_epoch_ms': ['count', np.ptp],
-        'nb_after_add': ['max'],
-        'product_sku_hash': list,
-        'product_action': list
-    }).reset_index()
-    X_test.columns = ["_".join(x) for x in X_test.columns.ravel()]
-
-    for nb in [0, 2, 4, 6, 8, 10]:
-        print('****** Starting nb==', nb)
         X_test_nb = X_test.query(f'nb_after_add_max=={nb}').reset_index(drop=True)
         X_test_nb = pd.concat([X_test_nb, extract_product_action_count(X_test_nb, nb)], axis=1)
+        X_test_nb = pd.concat([X_test_nb, extract_timestamp(df_test.query(f'nb_after_add=={nb}'))], axis=1)
 
+        _df = extract_product(X_train, X_test_nb, nb)
+        X_train = pd.concat([X_train, _df.loc[:len(X_train)].reset_index(drop=True)], axis=1)
+        X_test_nb = pd.concat([X_test_nb, _df.loc[len(X_train):].reset_index(drop=True)], axis=1)
+
+        Data.dump(X_train.drop(['product_sku_hash_list', 'product_action_list', 'label_max'], axis=1),
+                  f'../input/pickle/X_train_nb{nb}.pkl')
+        Data.dump(X_train['label_max'], f'../input/pickle/y_train_nb{nb}.pkl')
         Data.dump(
             X_test_nb.drop([
                 'session_id_hash_',
