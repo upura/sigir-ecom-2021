@@ -1,2 +1,3 @@
 mlflow==1.10.0
 node2vec==0.4.0
+python-dotenv==0.17.1
