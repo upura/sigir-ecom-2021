@@ -97,7 +97,9 @@ if __name__ == '__main__':
     X_test = df_test.groupby('session_id_hash').agg({
         'is_search': ['sum'],
         'server_timestamp_epoch_ms': ['count', np.ptp],
-        'nb_after_add': ['max']
+        'nb_after_add': ['max'],
+        'product_sku_hash': list,
+        'product_action': list
     }).reset_index()
     X_test.columns = ["_".join(x) for x in X_test.columns.ravel()]
 
