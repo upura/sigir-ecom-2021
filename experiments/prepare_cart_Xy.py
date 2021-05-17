@@ -12,8 +12,8 @@ from datasets import pickle_load
 def extract_product_action_count(df, nb):
     _df = df.copy()
     _df['target_product_sku_hash'] = _df['product_sku_hash_list'].map(lambda x: x[len(x) - nb - 1])
-    _df['product_action_list_nb'] = _df['product_action_list'].map(lambda x: x[len(x) - nb:])
-    _df['product_sku_hash_list_nb'] = _df['product_sku_hash_list'].map(lambda x: x[len(x) - nb:])
+    _df['product_action_list_nb'] = _df['product_action_list'].map(lambda x: x[-nb:])
+    _df['product_sku_hash_list_nb'] = _df['product_sku_hash_list'].map(lambda x: x[-nb:])
     _df['same_product_sku_hash'] = _df.apply(
         lambda x: [product is x['target_product_sku_hash'] for product in x['product_sku_hash_list'] if isinstance(product, str)],
         axis=1
@@ -75,12 +75,10 @@ def extract_product_action_count(df, nb):
 def extract_timestamp(df):
     _df = df.copy()
     _df = _df.groupby('session_id_hash')['server_timestamp'].max().reset_index()
-    _df['server_timestamp_month'] = _df['server_timestamp'].dt.month
     _df['server_timestamp_day'] = _df['server_timestamp'].dt.day
     _df['server_timestamp_dow'] = _df['server_timestamp'].dt.weekday
     _df['server_timestamp_hour'] = _df['server_timestamp'].dt.hour
     return _df[[
-        'server_timestamp_month',
         'server_timestamp_day',
         'server_timestamp_dow',
         'server_timestamp_hour'
@@ -96,17 +94,17 @@ def extract_product(X_train, X_test_nb, nb):
     _df['product_sku_hash'] = _df['product_sku_hash_list'].map(lambda x: x[len(x) - nb - 1])
     _df = pd.merge(_df['product_sku_hash'], sku_to_content, on='product_sku_hash', how='left')
     for c in ['category_hash',
-                  'category_hash_first_level',
-                  'category_hash_second_level',
-                  'category_hash_third_level']:
+              'category_hash_first_level',
+              'category_hash_second_level',
+              'category_hash_third_level']:
         le = preprocessing.LabelEncoder()
         _df[c] = le.fit_transform(_df[c].fillna('unkown'))
     _df = pd.concat([
         _df[['category_hash',
-              'category_hash_first_level',
-              'category_hash_second_level',
-              'category_hash_third_level',
-              'price_bucket']],
+             'category_hash_first_level',
+             'category_hash_second_level',
+             'category_hash_third_level',
+             'price_bucket']],
         pd.DataFrame(
             _df['description_vector'].map(lambda x: x if isinstance(x, list) else [0 for _ in range(50)]).to_list(),
             columns=[f'desc_{i}' for i in range(50)]
@@ -147,16 +145,29 @@ if __name__ == '__main__':
             'product_action': list
         }).reset_index(drop=True)
         X_train.columns = ["_".join(x) for x in X_train.columns.ravel()]
-        X_train = pd.concat([X_train, extract_product_action_count(X_train, nb)], axis=1)
+        # X_train = pd.concat([X_train, extract_product_action_count(X_train, nb)], axis=1)
         X_train = pd.concat([X_train, extract_timestamp(df_train)], axis=1)
 
         X_test_nb = X_test.query(f'nb_after_add_max=={nb}').reset_index(drop=True)
-        X_test_nb = pd.concat([X_test_nb, extract_product_action_count(X_test_nb, nb)], axis=1)
+        # X_test_nb = pd.concat([X_test_nb, extract_product_action_count(X_test_nb, nb)], axis=1)
         X_test_nb = pd.concat([X_test_nb, extract_timestamp(df_test.query(f'nb_after_add=={nb}'))], axis=1)
 
         _df = extract_product(X_train, X_test_nb, nb)
         X_train = pd.concat([X_train, _df[:len(X_train)].reset_index(drop=True)], axis=1)
         X_test_nb = pd.concat([X_test_nb, _df[len(X_train):].reset_index(drop=True)], axis=1)
+
+        X_train_old = Data.load(f'../session_rec_sigir_data/pickle/X_train_nb{nb}.pkl')
+        X_test_old = Data.load(f'../session_rec_sigir_data/pickle/X_test_nb{nb}.pkl')
+        if nb != 0:
+            X_train_old = X_train_old.iloc[:, -12:]
+            X_test_old = X_test_old.iloc[:, -12:]
+        else:
+            X_train_old = X_train_old.iloc[:, -6:]
+            X_test_old = X_test_old.iloc[:, -6:]
+        X_train_old.columns = [f'{c}_short' for c in X_train_old.columns]
+        X_test_old.columns = [f'{c}_short' for c in X_test_old.columns]
+        X_train = pd.concat([X_train, X_train_old], axis=1)
+        X_test_nb = pd.concat([X_test_nb, X_test_old], axis=1)
 
         Data.dump(X_train.drop(['product_sku_hash_list', 'product_action_list', 'label_max'], axis=1),
                   f'../input/pickle/X_train_nb{nb}.pkl')
@@ -170,6 +181,6 @@ if __name__ == '__main__':
             ], axis=1),
             f'../input/pickle/X_test_nb{nb}.pkl'
         )
-        sub = X_test_nb[['session_id_hash_']]
-        sub['label'] = np.nan
+        sub = X_test_nb[['session_id_hash_']].copy()
+        sub.loc[:, 'label'] = np.nan
         sub.to_csv(f'../session_rec_sigir_data/prepared/sample_submission_nb{nb}.csv', index=False)
