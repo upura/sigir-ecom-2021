@@ -1,0 +1,98 @@
+task: "rec"
+model_name: "TransformerEncoderModel"
+seed: 71
+device: cuda
+
+fold_params:
+  shuffle: True
+  n_splits: 5
+  random_state: 71
+
+train_loader_params:
+  batch_size: 128
+  shuffle: true
+  num_workers: 2
+  pin_memory: true
+
+val_loader_params:
+  batch_size: 128
+  shuffle: false
+  num_workers: 2
+  pin_memory: true
+
+test_loader_params:
+  batch_size: 1
+  shuffle: false
+  num_workers: 2
+  pin_memory: true
+
+n_epochs: 20
+window_size: 30
+
+encoder_params:
+  window_size: 30
+  embedding_size: 64
+  nhead: 8
+  num_layers: 2
+  hidden_size: 256
+  layer_norm_eps: 1.0e-12
+  hidden_dropout_prob: 0.1
+  lstm_hidden_size: 256
+  lstm_num_layers: 1
+  lstm_dropout: 0.1
+  pad_token_id: 0
+  size_elapsed_time: 1801   # add padding
+  size_event_type: 5   # add nan and padding
+  size_product_action: 6   # add nan and padding
+  size_hashed_url: 498845   # add nan and padding
+  size_price_bucket: 12   # add nan and padding
+  size_category_hash_first_level: 11   # add nan and padding
+  size_category_hash_second_level: 42   # add nan and padding
+  size_category_hash_third_level: 81   # add nan and padding
+  size_number_of_category_hash: 5   # add nan and padding
+  size_hour: 25   # add padding
+  size_weekday: 8   # add padding
+  size_weekend: 3   # add padding
+
+optimizer_params:
+  lr: 3.0e-4
+  betas:
+    - 0.9
+    - 0.99
+  eps: 1.0e-8
+
+loss_func_params:
+  alpha: 0.25
+  gamma: 2.0
+
+file_path:
+  input_dir: "/work/sigir-ecom-2021/data/input/"
+  output_dir: "/work/sigir-ecom-2021/data/output/"
+  feature_dir: "/work/sigir-ecom-2021/data/features/"
+  interim_dir: "/work/sigir-ecom-2021/data/interim/"
+
+raw_file:
+  browsing_train: "browsing_train.csv"
+  search_train: "search_train.csv"
+  sku_to_content: "sku_to_content.csv"
+  test: "rec_test_phase_1.json"
+
+pkl_file:
+  browsing_train: "browsing_train.pkl"
+  search_train: "search_train.pkl"
+  sku_to_content: "sku_to_content.pkl"
+  test: "rec_test_phase_1.pkl"
+  train_preprocessed: "train_preprocessed.pkl"
+  test_preprocessed: "test_preprocessed.pkl"
+
+out_file:
+  test: "rec_test_phase_1_pred.json"
+
+wandb:
+  use: True
+  project: "sigir-ecom-2021"
+  entity: "upura"
+  tags: [
+    "rec-task",
+    "transformer-encoder",
+  ]
