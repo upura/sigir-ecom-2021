@@ -58,8 +58,8 @@ def run(config: dict, debug: bool, holdout: bool) -> None:
         print(f"train_preprocessed: {train_preprocessed.shape}")
         print(f"test_preprocessed: {test_preprocessed.shape}")
 
-        train_session_info = train_preprocessed.groupby("session_id_hash")["product_sku_hash"].nunique().reset_index()
-        train_session_info.columns = ["session_id_hash", "n_items"]
+        train_session_info = train_preprocessed.groupby("session_id_hash").agg({"product_sku_hash": ["nunique"], "label": ["max"]}).reset_index()
+        train_session_info.columns = ["session_id_hash", "n_items", "label"]
         cv = StratifiedKFold(**config["fold_params"])
         folds = cv.split(
             train_session_info,
@@ -70,8 +70,10 @@ def run(config: dict, debug: bool, holdout: bool) -> None:
             ),
         )
 
-        num_labels = len(pr.index_to_label_dict["product_sku_hash"]) + 1   # plus padding id
+        num_labels = 1
+        test_preprocessed["label"] = -1
         test_session_seqs = pr.get_session_sequences(test_preprocessed)
+
         test_pred_all_folds = np.zeros((len(test_session_seqs), num_labels), dtype=np.float32)
         print(f"number of preprocessed test sessions: {len(test_session_seqs)}")
         print(f"ratio of preprocessed test sessions: {len(test_session_seqs) / len(test_session_ids)}")
@@ -133,10 +135,9 @@ def run(config: dict, debug: bool, holdout: bool) -> None:
             test_dataloader = dataset.test_dataloader()
             y_pred_list = []
             for x_batch in test_dataloader:
-                y_pred_next_item, y_pred_subsequent_items = model.forward(x_batch, torch.device("cpu"))
-                y_pred_next_item = y_pred_next_item.detach().numpy()
-                y_pred_subsequent_items = y_pred_subsequent_items.detach().numpy()
-                y_pred = (y_pred_next_item + y_pred_subsequent_items).reshape(-1)
+                y_pred = model.forward(x_batch, torch.device("cpu"))
+                y_pred = y_pred.detach().numpy()
+                y_pred = y_pred.reshape(-1)
                 y_pred_list.append(y_pred)
             test_pred = np.array(y_pred_list)
 
@@ -144,6 +145,6 @@ def run(config: dict, debug: bool, holdout: bool) -> None:
 
 
 if __name__ == '__main__':
-    run(config='configs/rec_exp012.yml',
+    run(config='configs/cart_exp012.yml',
         debug=False,
         holdout=True)

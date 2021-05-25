@@ -6,13 +6,6 @@ from torch.utils.data import Dataset, DataLoader
 from typing import Tuple, Dict, List, NamedTuple
 
 
-def get_onehot(tensor: torch.Tensor, num_labels: int) -> torch.Tensor:
-    tensor_onehot = nn.functional.one_hot(
-        tensor, num_labels
-    ).max(dim=0)[0].float()
-    return tensor_onehot
-
-
 class Example(NamedTuple):
     """https://github.com/sakami0000/kaggle_riiid/blob/main/src/data.py
     """
@@ -141,15 +134,11 @@ class RecTaskDataset(Dataset):
             weekday = [0] * pad_size + session_seq["weekday"][start_idx:end_idx]
             weekend = [0] * pad_size + session_seq["weekend"][start_idx:end_idx]
 
-            if not self.is_test:
-                target = [i for i in session_seq["product_sku_hash"][end_idx:] if i != 1 and i not in product_sku_hash]   # remove nan
-                target = sorted(set(target), key=target.index)
-            else:
-                target = [0]   # tekitou
+            target = session_seq["label"]
+            target = torch.FloatTensor([target])
 
             input_ids = torch.LongTensor(product_sku_hash)
             attention_mask = (input_ids > 0).float()
-            target = torch.LongTensor(target)
 
             example = Example(
                 input_ids=input_ids,
@@ -178,9 +167,7 @@ class RecTaskDataset(Dataset):
 
     def __getitem__(self, idx: int) -> Tuple[Example, torch.Tensor]:
         if not self.is_test:
-            target_onehot_subsequent_items = get_onehot(self.all_targets[idx], self.num_labels)
-            target_onehot_next_item = get_onehot(self.all_targets[idx][:1], self.num_labels)
-            return self.all_examples[idx], target_onehot_next_item, target_onehot_subsequent_items
+            return self.all_examples[idx], self.all_targets[idx]
         else:
             return self.all_examples[idx]
 

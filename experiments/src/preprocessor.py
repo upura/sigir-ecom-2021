@@ -203,6 +203,7 @@ class Preprocessor:
                 "hour": list,
                 "weekday": list,
                 "weekend": list,
+                "label": max,
             })
             .to_dict(orient="index") 
         )

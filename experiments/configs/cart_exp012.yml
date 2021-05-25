@@ -93,6 +93,6 @@ wandb:
   project: "sigir-ecom-2021"
   entity: "upura"
   tags: [
-    "rec-task",
+    "cart-task",
     "transformer-encoder",
   ]
