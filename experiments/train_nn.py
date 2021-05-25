@@ -70,11 +70,11 @@ def run(config: dict, debug: bool, holdout: bool) -> None:
             ),
         )
 
-        num_labels = 1
+        num_labels = len(pr.index_to_label_dict["product_sku_hash"]) + 1   # plus padding id
         test_preprocessed["label"] = -1
         test_session_seqs = pr.get_session_sequences(test_preprocessed)
 
-        test_pred_all_folds = np.zeros((len(test_session_seqs), num_labels), dtype=np.float32)
+        test_pred_all_folds = np.zeros((len(test_session_seqs), 1), dtype=np.float32)
         print(f"number of preprocessed test sessions: {len(test_session_seqs)}")
         print(f"ratio of preprocessed test sessions: {len(test_session_seqs) / len(test_session_ids)}")
 
@@ -142,6 +142,8 @@ def run(config: dict, debug: bool, holdout: bool) -> None:
             test_pred = np.array(y_pred_list)
 
             test_pred_all_folds += test_pred / config["fold_params"]["n_splits"]
+
+
 
 
 if __name__ == '__main__':

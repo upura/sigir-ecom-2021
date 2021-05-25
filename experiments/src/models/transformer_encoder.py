@@ -132,7 +132,7 @@ class TransformerEncoderModel(nn.Module):
             nn.LayerNorm(encoder_params["hidden_size"]),
             nn.Dropout(dropout),
             nn.ReLU(inplace=True),
-            nn.Linear(encoder_params["hidden_size"], num_labels),
+            nn.Linear(encoder_params["hidden_size"], 1),
         )
         self.seq = nn.LSTM(
             input_size=encoder_params["hidden_size"],

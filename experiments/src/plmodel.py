@@ -35,8 +35,6 @@ class RecTaskPLModel(pl.LightningModule):
         y_pred = self.forward(x_batch, self.config["device"])
 
         loss = self.criterion(y_pred, y_batch)
-
-        y_pred = y_pred_next_item + y_pred_subsequent_items
         return {"loss": loss}
 
     def training_epoch_end(self, train_step_outputs: List[dict]):
