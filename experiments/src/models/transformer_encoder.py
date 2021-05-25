@@ -188,7 +188,7 @@ class TransformerEncoderModel(nn.Module):
         hidden, _  = self.seq(encoder_outputs)
         last_state = hidden[-1, :, :]
         output = self.ffn(last_state)
-        return output
+        return torch.sigmoid(output)
 
 
 class GlobalMaxPooling1D(nn.Module):
