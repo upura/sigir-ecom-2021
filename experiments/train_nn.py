@@ -34,12 +34,14 @@ def run(config: dict, debug: bool, holdout: bool) -> None:
         config = yaml.load(f, Loader=yaml.SafeLoader)
         config["exp_name"] = Path(f.name).stem
 
-    test = pickle_load('../session_rec_sigir_data/prepared/test.pkl')
-    test_session_ids = set(test["session_id_hash"].unique())
-    sku_to_content = pd.read_pickle('../session_rec_sigir_data/prepared/sku_to_content.pkl')
-
-    for nb in [10]:
+    for nb in [0, 2, 4, 6, 8, 10]:
         print('****** Starting nb==', nb)
+
+        test = pickle_load('../session_rec_sigir_data/prepared/test.pkl')
+        test = test.query(f'nb_after_add=={nb}').reset_index(drop=True)
+        test_session_ids = set(test["session_id_hash"].unique())
+        sku_to_content = pd.read_pickle('../session_rec_sigir_data/prepared/sku_to_content.pkl')
+
         df_pos = pd.read_pickle(f'../session_rec_sigir_data/prepared/train_pos_nb{nb}.pkl')
         df_neg = pd.read_pickle(f'../session_rec_sigir_data/prepared/train_neg_nb{nb}.pkl')
 
@@ -130,7 +132,6 @@ def run(config: dict, debug: bool, holdout: bool) -> None:
             )
             trainer.save_checkpoint(best_ckpt)
 
-            del train_preprocessed
             model.to(torch.device("cpu"))
             test_dataloader = dataset.test_dataloader()
             y_pred_list = []
@@ -141,9 +142,8 @@ def run(config: dict, debug: bool, holdout: bool) -> None:
                 y_pred_list.append(y_pred)
             test_pred = np.array(y_pred_list)
 
-            test_pred_all_folds += test_pred / config["fold_params"]["n_splits"]
-
-
+            test_pred_all_folds += test_pred.reshape(-1, 1) / config["fold_params"]["n_splits"]
+            np.save(f'../output/pred/test_pred_all_folds_{config["exp_name"]}_{nb}', test_pred_all_folds)
 
 
 if __name__ == '__main__':

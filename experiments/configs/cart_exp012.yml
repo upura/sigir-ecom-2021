@@ -1,4 +1,4 @@
-task: "rec"
+task: "cart"
 model_name: "TransformerEncoderModel"
 seed: 71
 device: cuda

@@ -77,9 +77,12 @@ if __name__ == '__main__':
     weighted_sum, metric_to_score = weighted_micro_f1(preds, labels, nb_after_add, weights)
     print(weighted_sum, metric_to_score)
 
+    transformer_preds = [np.load(f'../output/pred/test_pred_all_folds_cart_exp012_{nb}.npy') for nb in range(0, 12, 2)]
+
     subs = [pd.read_csv(f'../session_rec_sigir_data/prepared/sample_submission_nb{nb}.csv') for nb in range(0, 12, 2)]
     for idx in range(6):
-        subs[idx]['label'] = (data[idx][1] > thrs[idx]).astype(int)
+        weighted_pred = (data[idx][1] * 0.5 + transformer_preds[idx] * 0.5)
+        subs[idx]['label'] = (weighted_pred > thrs[idx]).astype(int)
     sub = pd.concat(subs, axis=0)
     sub.index = sub['session_id_hash_']
     sid2label = sub['label'].to_dict()
