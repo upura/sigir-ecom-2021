@@ -1,8 +1,6 @@
 import numpy as np
 import torch
 import torch.nn as nn
-from catalyst.metrics.functional import reciprocal_rank
-from catalyst.metrics.functional._misc import process_recsys_components
 
 
 def f1_top_k(

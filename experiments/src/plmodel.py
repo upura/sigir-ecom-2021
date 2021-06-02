@@ -17,7 +17,7 @@ class RecTaskPLModel(pl.LightningModule):
             encoder_params=config["encoder_params"],
             num_labels=num_labels,
         )
-        self.criterion = nn.BCEWithLogitsLoss()
+        self.criterion = nn.BCELoss()
 
     def forward(self, x_batch, device: torch.device):
         output = self.model(**x_batch.to_dict(device))
