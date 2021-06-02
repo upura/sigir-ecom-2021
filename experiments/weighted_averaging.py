@@ -62,27 +62,30 @@ if __name__ == '__main__':
         'run005'
     ]
 
-    data = [load_from_run_id(ri, to_rank=False) for ri in run_ids]
-    y_trains = [Data.load(f'../input/pickle/y_train_nb{nb}.pkl') for nb in range(0, 12, 2)]
-    results = [minimize(f, 0.5, args=(y_trains[idx], data[idx][0]), method='Nelder-Mead') for idx in range(6)]
-    thrs = [res['x'][0] for res in results]
-    preds = []
-    labels = []
-    nb_after_add = []
-    for nb in range(6):
-        preds += list((data[nb][0] > thrs[nb]).astype(int))
-        labels += list(y_trains[nb])
-        nb_after_add += [nb * 2 for _ in range(len(y_trains[nb]))]
-    weights = {0: 1.0, 2: 0.9, 4: 0.8, 6: 0.7, 8: 0.6, 10: 0.5}
-    weighted_sum, metric_to_score = weighted_micro_f1(preds, labels, nb_after_add, weights)
-    print(weighted_sum, metric_to_score)
+    # data = [load_from_run_id(ri, to_rank=False) for ri in run_ids]
+    # y_trains = [Data.load(f'../input/pickle/y_train_nb{nb}.pkl') for nb in range(0, 12, 2)]
+    # results = [minimize(f, 0.5, args=(y_trains[idx], data[idx][0]), method='Nelder-Mead') for idx in range(6)]
+    # thrs = [res['x'][0] for res in results]
+    # preds = []
+    # labels = []
+    # nb_after_add = []
+    # for nb in range(6):
+    #     preds += list((data[nb][0] > thrs[nb]).astype(int))
+    #     labels += list(y_trains[nb])
+    #     nb_after_add += [nb * 2 for _ in range(len(y_trains[nb]))]
+    # weights = {0: 1.0, 2: 0.9, 4: 0.8, 6: 0.7, 8: 0.6, 10: 0.5}
+    # weighted_sum, metric_to_score = weighted_micro_f1(preds, labels, nb_after_add, weights)
+    # print(weighted_sum, metric_to_score)
 
     transformer_preds = [np.load(f'../output/pred/test_pred_all_folds_cart_exp012_{nb}.npy') for nb in range(0, 12, 2)]
 
     subs = [pd.read_csv(f'../session_rec_sigir_data/prepared/sample_submission_nb{nb}.csv') for nb in range(0, 12, 2)]
+    thrs = [0.5, 0.45, 0.45, 0.45, 0.45, 0.385]
     for idx in range(6):
-        weighted_pred = (data[idx][1] * 0.5 + transformer_preds[idx] * 0.5)
+        weighted_pred = (transformer_preds[idx] * 5)
+        print(max(weighted_pred))
         subs[idx]['label'] = (weighted_pred > thrs[idx]).astype(int)
+        print(len(subs[idx]['label']), sum(subs[idx]['label']))
     sub = pd.concat(subs, axis=0)
     sub.index = sub['session_id_hash_']
     sid2label = sub['label'].to_dict()
