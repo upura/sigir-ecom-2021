@@ -142,7 +142,10 @@ def run(config: dict, debug: bool, holdout: bool) -> None:
                 y_pred_list.append(y_pred)
             test_pred = np.array(y_pred_list)
 
-            test_pred_all_folds += test_pred.reshape(-1, 1) / config["fold_params"]["n_splits"]
+            if holdout:
+                test_pred_all_folds += test_pred.reshape(-1, 1)
+            else:
+                test_pred_all_folds += test_pred.reshape(-1, 1) / config["fold_params"]["n_splits"]
             np.save(f'../output/pred/test_pred_all_folds_{config["exp_name"]}_{nb}', test_pred_all_folds)
 
 
