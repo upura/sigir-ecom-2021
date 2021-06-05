@@ -10,29 +10,15 @@ See also:
 
 ## Procedure
 
-### Feature Engineering
-
 ```bash
-python3 -m venv env
-source env/bin/activate
+docker-compose up -d
+docker exec -it sigir2021 bash
 ```
 ```
 cd experiments
 python prepare_df.py
 python prepare_cart_df.py
 python prepare_cart_Xy.py
-sh runner.sh
-python weighted_averaging.py
-```
-
-### Training and Inference
-
-```
-docker-compose up -d
-docker exec -it sigir2021 bash
-```
-```
-cd experiments
 sh runner.sh
 python weighted_averaging.py
 ```
