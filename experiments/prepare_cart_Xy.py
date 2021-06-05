@@ -140,17 +140,18 @@ if __name__ == '__main__':
         X_train.columns = ["_".join(x) for x in X_train.columns.ravel()]
         if nb != 0:
             X_train = pd.concat([X_train, extract_product_action_count(X_train, nb)], axis=1)
-        X_train = pd.concat([X_train, extract_timestamp(df_train)], axis=1)
+        # X_train = pd.concat([X_train, extract_timestamp(df_train)], axis=1)
 
         X_test_nb = X_test.query(f'nb_after_add_max=={nb}').reset_index(drop=True)
         if nb != 0:
             X_test_nb = pd.concat([X_test_nb, extract_product_action_count(X_test_nb, nb)], axis=1)
-        X_test_nb = pd.concat([X_test_nb, extract_timestamp(df_test.query(f'nb_after_add=={nb}'))], axis=1)
+        # X_test_nb = pd.concat([X_test_nb, extract_timestamp(df_test.query(f'nb_after_add=={nb}'))], axis=1)
 
-        _df = extract_product(X_train, X_test_nb, nb)
-        X_train = pd.concat([X_train, _df[:len(X_train)].reset_index(drop=True)], axis=1)
-        X_test_nb = pd.concat([X_test_nb, _df[len(X_train):].reset_index(drop=True)], axis=1)
+        # _df = extract_product(X_train, X_test_nb, nb)
+        # X_train = pd.concat([X_train, _df[:len(X_train)].reset_index(drop=True)], axis=1)
+        # X_test_nb = pd.concat([X_test_nb, _df[len(X_train):].reset_index(drop=True)], axis=1)
 
+        print(X_train.drop(['product_sku_hash_list', 'product_action_list', 'label_max'], axis=1).shape)
         Data.dump(X_train.drop(['product_sku_hash_list', 'product_action_list', 'label_max'], axis=1),
                   f'../input/pickle/X_train_nb{nb}.pkl')
         Data.dump(X_train['label_max'], f'../input/pickle/y_train_nb{nb}.pkl')

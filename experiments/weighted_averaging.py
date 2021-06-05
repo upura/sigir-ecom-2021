@@ -78,7 +78,7 @@ if __name__ == '__main__':
     print(weighted_sum, metric_to_score)
 
     # transformer_preds = [np.load(f'../output/pred/test_pred_all_folds_cart_exp012_{nb}.npy') for nb in range(0, 12, 2)]
-    thrs = [0.99, 0.995, 0.995, 0.995, 0.995, 0.995]
+    thrs = [0.99, 0.99, 0.999, 0.999, 0.9982, 0.9983]
     print(thrs)
     subs = [pd.read_csv(f'../session_rec_sigir_data/prepared/sample_submission_nb{nb}.csv') for nb in range(0, 12, 2)]
 
