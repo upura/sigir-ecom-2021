@@ -24,7 +24,9 @@ if __name__ == '__main__':
                 purchased_product_sku_hash = tmp_train.query('product_action=="purchase"')['product_sku_hash'].values[0]
                 purchase_idx_purchased_product_sku_hash = tmp_train.query('product_action=="purchase"').index[0]
                 ac_idx_purchased_product_sku_hash = tmp_train.query(f'product_action=="add" and product_sku_hash=="{purchased_product_sku_hash }"').index[0]
-                if (purchase_idx_purchased_product_sku_hash > ac_idx_purchased_product_sku_hash + nb) and (ac_idx_purchased_product_sku_hash + nb < len(tmp_train)):
+                if ((purchase_idx_purchased_product_sku_hash > ac_idx_purchased_product_sku_hash + nb)
+                        and (ac_idx_purchased_product_sku_hash + nb < len(tmp_train))
+                        and (purchased_product_sku_hash not in tmp_train['product_sku_hash'][ac_idx_purchased_product_sku_hash + 1: ac_idx_purchased_product_sku_hash  + nb + 1].values)):
                     dfs.append(tmp_train.loc[:ac_idx_purchased_product_sku_hash + nb])
             except IndexError:
                 pass
@@ -40,7 +42,9 @@ if __name__ == '__main__':
             tmp_train = tmp_train.reset_index(drop=True)
             try:
                 ac_idx = tmp_train.query('product_action=="add"').index[-1]
-                if (ac_idx + nb < len(tmp_train)):
+                added_product_sku_hash = tmp_train.query('product_action=="add"')['product_sku_hash'].values[-1]
+                if ((ac_idx + nb < len(tmp_train))
+                        and (added_product_sku_hash not in tmp_train['product_sku_hash'][ac_idx + 1: ac_idx + nb + 1].values)):
                     dfs.append(tmp_train.loc[:ac_idx + nb])
             except IndexError:
                 pass
