@@ -77,14 +77,15 @@ if __name__ == '__main__':
     weighted_sum, metric_to_score = weighted_micro_f1(preds, labels, nb_after_add, weights)
     print(weighted_sum, metric_to_score)
 
-    # transformer_preds = [np.load(f'../output/pred/test_pred_all_folds_cart_exp012_{nb}.npy') for nb in range(0, 12, 2)]
-    thrs = [0.99, 0.99, 0.999, 0.999, 0.9982, 0.9983]
-    print(thrs)
+    transformer_preds = [np.load(f'../output/pred/test_pred_all_folds_cart_exp012_{nb}.npy') for nb in range(0, 12, 2)]
     subs = [pd.read_csv(f'../session_rec_sigir_data/prepared/sample_submission_nb{nb}.csv') for nb in range(0, 12, 2)]
+    thrs = [0.75, 0.75, 0.75, 0.75, 0.75, 0.75]
+    print(thrs)
 
     for idx in range(6):
-        # weighted_pred = (transformer_preds[idx] * 5)
-        weighted_pred = (data[idx][1])
+        lgbm_pred = rankdata(data[idx][1]) / len(data[idx][1])
+        transformer_pred = rankdata(transformer_preds[idx]) / len(transformer_preds[idx])
+        weighted_pred = (lgbm_pred + transformer_pred) / 2
         print(max(weighted_pred))
         subs[idx]['label'] = (weighted_pred > thrs[idx]).astype(int)
         print(len(subs[idx]['label']), sum(subs[idx]['label']))
