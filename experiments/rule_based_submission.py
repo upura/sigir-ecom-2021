@@ -50,9 +50,9 @@ if __name__ == '__main__':
 
         if nb in [10]:
             pos_session_ids += X_test_nb.query('num_add_not_same_product_nb > 3')['session_id_hash_'].to_list()
-            pos_session_ids += X_test_nb.query('num_add_not_same_product_nb == 1 and num_remove_not_same_product_nb > 1')['session_id_hash_'].to_list()
-
-    print(len(set(pos_session_ids)))
+            print(len(set(pos_session_ids)))
+            pos_session_ids += X_test_nb.query('num_add_not_same_product_nb == 3 and num_remove_not_same_product_nb > 3')['session_id_hash_'].to_list()
+            print(len(set(pos_session_ids)))
 
     with open('../session_rec_sigir_data/test/intention_test_phase_1.json', 'r') as f:
         original_test_data = json.load(f)
