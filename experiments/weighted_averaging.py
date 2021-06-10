@@ -79,7 +79,7 @@ if __name__ == '__main__':
 
     transformer_preds = [np.load(f'../output/pred/test_pred_all_folds_cart_exp012_{nb}.npy') for nb in range(0, 12, 2)]
     subs = [pd.read_csv(f'../session_rec_sigir_data/prepared/sample_submission_nb{nb}.csv') for nb in range(0, 12, 2)]
-    # thrs = [0.97, 0.95, 0.95, 0.95, 0.95, 0.95]
+    thrs = [1, 1, 1, 1, 1, 0.97]
     print(thrs)
 
     for idx in range(6):
@@ -93,15 +93,15 @@ if __name__ == '__main__':
     sub.index = sub['session_id_hash_']
     sid2label = sub['label'].to_dict()
 
-    # with open('../session_rec_sigir_data/test/intention_test_phase_1.json', 'r') as f:
-    #     original_test_data = json.load(f)
+    with open('../session_rec_sigir_data/test/intention_test_phase_1.json', 'r') as f:
+        original_test_data = json.load(f)
 
-    # for idx, query_label in enumerate(original_test_data):
-    #     query = query_label["query"]
-    #     session_id_hash = query[0]["session_id_hash"]
-    #     original_test_data[idx]["label"] = sid2label[session_id_hash]
+    for idx, query_label in enumerate(original_test_data):
+        query = query_label["query"]
+        session_id_hash = query[0]["session_id_hash"]
+        original_test_data[idx]["label"] = sid2label[session_id_hash]
 
-    # outfile_path = Path('../output/submissions') / "submission.json"
-    # with open(outfile_path, 'w') as outfile:
-    #     json.dump(original_test_data, outfile)
-    # submission(outfile_path, 'cart')
+    outfile_path = Path('../output/submissions') / "submission.json"
+    with open(outfile_path, 'w') as outfile:
+        json.dump(original_test_data, outfile)
+    submission(outfile_path, 'cart')
