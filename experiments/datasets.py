@@ -73,7 +73,7 @@ def _preprocessing_sku_to_content(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def load_test_data() -> pd.DataFrame:
-    with open('../session_rec_sigir_data/test/intention_test_phase_1.json', 'r') as f:
+    with open('../session_rec_sigir_data/test/intention_test_phase_2.json', 'r') as f:
         test = json.load(f)
     dataset = _convert_json_to_dataframe(test)
     return dataset

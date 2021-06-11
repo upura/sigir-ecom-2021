@@ -14,7 +14,7 @@ from prepare_cart_Xy import extract_product_action_count
 
 if __name__ == '__main__':
 
-    df_test = pickle_load('../session_rec_sigir_data/prepared/test.pkl')
+    df_test = pickle_load('../session_rec_sigir_data/prepared/test_phase_2.pkl')
     X_test = df_test.groupby('session_id_hash').agg({
         'is_search': ['sum'],
         'server_timestamp_epoch_ms': ['count', np.ptp],
@@ -51,10 +51,10 @@ if __name__ == '__main__':
         if nb in [10]:
             pos_session_ids += X_test_nb.query('num_add_not_same_product_nb > 3')['session_id_hash_'].to_list()
             print(len(set(pos_session_ids)))
-            pos_session_ids += X_test_nb.query('num_add_not_same_product_nb == 3 and num_remove_not_same_product_nb > 3')['session_id_hash_'].to_list()
-            print(len(set(pos_session_ids)))
+            # pos_session_ids += X_test_nb.query('num_add_not_same_product_nb == 3 and num_remove_not_same_product_nb > 3')['session_id_hash_'].to_list()
+            # print(len(set(pos_session_ids)))
 
-    with open('../session_rec_sigir_data/test/intention_test_phase_1.json', 'r') as f:
+    with open('../session_rec_sigir_data/test/intention_test_phase_2.json', 'r') as f:
         original_test_data = json.load(f)
 
     for idx, query_label in enumerate(original_test_data):
