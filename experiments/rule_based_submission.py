@@ -49,7 +49,7 @@ if __name__ == '__main__':
             X_test_nb = pd.concat([X_test_nb, extract_product_action_count(X_test_nb, nb)], axis=1)
 
         if nb in [10]:
-            pos_session_ids += X_test_nb.query('num_add_not_same_product_nb > 3')['session_id_hash_'].to_list()
+            pos_session_ids += X_test_nb.query('num_add_not_same_product_nb > 4')['session_id_hash_'].to_list()
             print(len(set(pos_session_ids)))
             # pos_session_ids += X_test_nb.query('num_add_not_same_product_nb == 3 and num_remove_not_same_product_nb > 3')['session_id_hash_'].to_list()
             # print(len(set(pos_session_ids)))
