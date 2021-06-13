@@ -54,16 +54,16 @@ def f(x, y_true, y_pred):
 if __name__ == '__main__':
 
     run_ids = [
-        'run000',
-        'run001',
-        'run002',
-        'run003',
-        'run004',
-        'run005'
+        'run000_phase_2',
+        'run001_phase_2',
+        'run002_phase_2',
+        'run003_phase_2',
+        'run004_phase_2',
+        'run005_phase_2'
     ]
 
     data = [load_from_run_id(ri, to_rank=False) for ri in run_ids]
-    y_trains = [Data.load(f'../input/pickle/y_train_nb{nb}.pkl') for nb in range(0, 12, 2)]
+    y_trains = [Data.load(f'../input/pickle/y_train_nb{nb}_phase_2.pkl') for nb in range(0, 12, 2)]
     results = [minimize(f, 0.5, args=(y_trains[idx], data[idx][0]), method='Nelder-Mead') for idx in range(6)]
     thrs = [res['x'][0] for res in results]
     preds = []
@@ -77,8 +77,8 @@ if __name__ == '__main__':
     weighted_sum, metric_to_score = weighted_micro_f1(preds, labels, nb_after_add, weights)
     print(weighted_sum, metric_to_score)
 
-    transformer_preds = [np.load(f'../output/pred/test_pred_all_folds_cart_exp012_{nb}.npy') for nb in range(0, 12, 2)]
-    subs = [pd.read_csv(f'../session_rec_sigir_data/prepared/sample_submission_nb{nb}.csv') for nb in range(0, 12, 2)]
+    transformer_preds = [np.load(f'../output/pred/test_pred_all_folds_cart_exp012_{nb}_phase_2.npy') for nb in range(0, 12, 2)]
+    subs = [pd.read_csv(f'../session_rec_sigir_data/prepared/sample_submission_nb{nb}_phase_2.csv') for nb in range(0, 12, 2)]
     thrs = [1, 1, 1, 1, 1, 0.97]
     print(thrs)
 
@@ -93,7 +93,7 @@ if __name__ == '__main__':
     sub.index = sub['session_id_hash_']
     sid2label = sub['label'].to_dict()
 
-    with open('../session_rec_sigir_data/test/intention_test_phase_1.json', 'r') as f:
+    with open('../session_rec_sigir_data/test/intention_test_phase_2.json', 'r') as f:
         original_test_data = json.load(f)
 
     for idx, query_label in enumerate(original_test_data):
