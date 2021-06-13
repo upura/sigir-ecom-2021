@@ -285,7 +285,7 @@ class Runner:
                 .mean()
                 .sort_values(by="importance", ascending=False)
             )
-            cols = aggs[:200].index
+            cols = aggs[:15].index
             pd.DataFrame(aggs.index).to_csv(
                 f"../output/importance/{self.run_name}-fi.csv", index=False
             )
