@@ -294,7 +294,7 @@ class Runner:
                 feature_importances.Feature.isin(cols)
             ]
             plt.rcParams["font.size"] = 14
-            plt.figure(figsize=(10, 10))
+            plt.figure(figsize=(10, 7))
             sns.barplot(
                 x="importance",
                 y="Feature",
