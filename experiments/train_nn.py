@@ -37,7 +37,7 @@ def run(config: dict, debug: bool, holdout: bool) -> None:
     for nb in [0, 2, 4, 6, 8, 10]:
         print('****** Starting nb==', nb)
 
-        test = pickle_load('../session_rec_sigir_data/prepared/test.pkl')
+        test = pickle_load('../session_rec_sigir_data/prepared/test_phase_2.pkl')
         test = test.query(f'nb_after_add=={nb}').reset_index(drop=True)
         test_session_ids = set(test["session_id_hash"].unique())
         sku_to_content = pd.read_pickle('../session_rec_sigir_data/prepared/sku_to_content.pkl')
@@ -146,7 +146,7 @@ def run(config: dict, debug: bool, holdout: bool) -> None:
                 test_pred_all_folds += test_pred.reshape(-1, 1)
             else:
                 test_pred_all_folds += test_pred.reshape(-1, 1) / config["fold_params"]["n_splits"]
-            np.save(f'../output/pred/test_pred_all_folds_{config["exp_name"]}_{nb}', test_pred_all_folds)
+            np.save(f'../output/pred/test_pred_all_folds_{config["exp_name"]}_{nb}_phase_2', test_pred_all_folds)
 
 
 if __name__ == '__main__':

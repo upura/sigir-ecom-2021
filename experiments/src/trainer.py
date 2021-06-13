@@ -11,7 +11,7 @@ def get_trainer(
     ckpt_callback = pl.callbacks.ModelCheckpoint(
         dirpath=Path(config["file_path"]["output_dir"]) / config["exp_name"],
         filename='{epoch:03d}-{val_loss:.3f}-{val_mrr:.3f}-{val_f1_score:.3f}',
-        save_top_k=1,
+        # save_top_k=1,
         monitor="val_loss",
         mode="min",
     )
