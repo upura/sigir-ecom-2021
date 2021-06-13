@@ -112,7 +112,7 @@ def extract_product(X_train, X_test_nb, nb):
 
 if __name__ == '__main__':
 
-    df_test = pickle_load('../session_rec_sigir_data/prepared/test.pkl')
+    df_test = pickle_load('../session_rec_sigir_data/prepared/test_phase_2.pkl')
     X_test = df_test.groupby('session_id_hash').agg({
         'is_search': ['sum'],
         'server_timestamp_epoch_ms': ['count', np.ptp],
@@ -151,8 +151,8 @@ if __name__ == '__main__':
 
         print(X_train.drop(['product_sku_hash_list', 'product_action_list', 'label_max'], axis=1).shape)
         Data.dump(X_train.drop(['product_sku_hash_list', 'product_action_list', 'label_max'], axis=1),
-                  f'../input/pickle/X_train_nb{nb}.pkl')
-        Data.dump(X_train['label_max'], f'../input/pickle/y_train_nb{nb}.pkl')
+                  f'../input/pickle/X_train_nb{nb}_phase_2.pkl')
+        Data.dump(X_train['label_max'], f'../input/pickle/y_train_nb{nb}_phase_2.pkl')
         Data.dump(
             X_test_nb.drop([
                 'session_id_hash_',
@@ -160,8 +160,8 @@ if __name__ == '__main__':
                 'product_sku_hash_list',
                 'product_action_list'
             ], axis=1),
-            f'../input/pickle/X_test_nb{nb}.pkl'
+            f'../input/pickle/X_test_nb{nb}_phase_2.pkl'
         )
         sub = X_test_nb[['session_id_hash_']].copy()
         sub.loc[:, 'label'] = np.nan
-        sub.to_csv(f'../session_rec_sigir_data/prepared/sample_submission_nb{nb}.csv', index=False)
+        sub.to_csv(f'../session_rec_sigir_data/prepared/sample_submission_nb{nb}_phase_2.csv', index=False)
