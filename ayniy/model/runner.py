@@ -293,7 +293,8 @@ class Runner:
             best_features = feature_importances.loc[
                 feature_importances.Feature.isin(cols)
             ]
-            plt.figure(figsize=(14, 26))
+            plt.rcParams["font.size"] = 14
+            plt.figure(figsize=(10, 10))
             sns.barplot(
                 x="importance",
                 y="Feature",
