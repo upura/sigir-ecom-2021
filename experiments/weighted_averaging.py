@@ -79,7 +79,7 @@ if __name__ == '__main__':
 
     transformer_preds = [np.load(f'../output/pred/test_pred_all_folds_cart_exp012_{nb}_phase_2.npy') for nb in range(0, 12, 2)]
     subs = [pd.read_csv(f'../session_rec_sigir_data/prepared/sample_submission_nb{nb}_phase_2.csv') for nb in range(0, 12, 2)]
-    thrs = [1, 1, 1, 1, 1, 0.96]
+    thrs = [1, 1, 1, 1, 0.98, 0.98]
     print(thrs)
 
     for idx in range(6):
