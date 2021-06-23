@@ -17,6 +17,8 @@ More detailed information will be available on the technical paper (to appear).
 
 ## Implementation
 
+The implementation of GBDT used a supporting tool for machine learning competitions named [Ayniy](https://github.com/upura/ayniy).
+
 ### Data Preparation
 
 ```bash
