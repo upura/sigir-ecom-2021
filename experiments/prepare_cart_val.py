@@ -8,6 +8,8 @@ from datasets import pickle_load
 from weighted_averaging import weighted_micro_f1
 
 
+MODE = 'adversarial'
+
 if __name__ == '__main__':
     nb = 0
     preds = []
@@ -25,20 +27,33 @@ if __name__ == '__main__':
         X_train['adv'] = train_adv[:len(X_train)]
         X_train['pred'] = Data.load(f'../output/pred/run00{nb}-train.pkl')
         X_train['pred'] = (X_train['pred'] > 0.5).astype(int)
-        # if run_id == 'run010':
-        #     X_train['pred'] = 1
-        # else:
-        #     X_train['pred'] = 0
         X_train = X_train.sort_values('adv', ascending=False)
         X_train_neg = X_train.query('label==0')
         X_train_pos = X_train.query('label==1')
-        preds += X_train_neg['pred'][:int(len(X_test) * prop[nb] // 10)].to_list()
-        labels += X_train_neg['label'][:int(len(X_test) * prop[nb] // 10)].to_list()
-        preds += X_train_pos['pred'][:int(len(X_test) * (10 - prop[nb]) // 10)].to_list()
-        labels += X_train_pos['label'][:int(len(X_test) * (10 - prop[nb]) // 10)].to_list()
-        nb_after_add += [nb * 2 for _ in range(
-            int(len(X_test) * prop[nb] // 10) + int(len(X_test) * (10 - prop[nb]) // 10)
-        )]
+
+        if MODE == 'all':
+            preds += X_train_neg['pred'].to_list()
+            labels += X_train_neg['label'].to_list()
+            preds += X_train_pos['pred'].to_list()
+            labels += X_train_pos['label'].to_list()
+            nb_after_add += [nb * 2 for _ in range(len(X_train_neg) + len(X_train_pos))]
+        elif MODE == 'adversarial':
+            preds += X_train_neg['pred'][:int(len(X_test) * prop[nb] // 10)].to_list()
+            labels += X_train_neg['label'][:int(len(X_test) * prop[nb] // 10)].to_list()
+            preds += X_train_pos['pred'][:int(len(X_test) * (10 - prop[nb]) // 10)].to_list()
+            labels += X_train_pos['label'][:int(len(X_test) * (10 - prop[nb]) // 10)].to_list()
+            nb_after_add += [nb * 2 for _ in range(
+                int(len(X_test) * prop[nb] // 10) + int(len(X_test) * (10 - prop[nb]) // 10)
+            )]
+        elif MODE == 'random':
+            X_train_neg = X_train_neg.sample(n=int(len(X_test) * prop[nb] // 10), random_state=123).reset_index(drop=True)
+            X_train_pos = X_train_pos.sample(n=int(len(X_test) * (10 - prop[nb]) // 10), random_state=123).reset_index(drop=True)
+            preds += X_train_neg['pred'].to_list()
+            labels += X_train_neg['label'].to_list()
+            preds += X_train_pos['pred'].to_list()
+            labels += X_train_pos['label'].to_list()
+            nb_after_add += [nb * 2 for _ in range(len(X_train_neg) + len(X_train_pos))]
+
         nb += 1
 
     weights = {0: 1.0, 2: 0.9, 4: 0.8, 6: 0.7, 8: 0.6, 10: 0.5}
