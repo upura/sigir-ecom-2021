@@ -13,7 +13,7 @@ Note that the task of this competition is difficult so that most participants co
 One of the important points is to figure out the clues which can break the baseline.
 We applied adversarial validation methodology, creating a classifier for train and test data, for validation data selection.
 This evaluation approach guided us, and we decided to use prospective model for the specific test data.
-More detailed information will be available on the technical paper (to appear).
+More detailed information will be available on the technical paper (to appear), the [slides](https://speakerdeck.com/upura/adversarial-validation-to-select-validation-data-for-evaluating-performance-in-e-commerce-purchase-intent-prediction), and the [video](https://youtu.be/Vs24X6L88rQ).
 
 ## Implementation
 
